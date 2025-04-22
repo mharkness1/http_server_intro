@@ -1,24 +1,35 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"sync/atomic"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+	"github.com/mharkness1/http_server_intro/internal/database"
 )
 
 type apiConfig struct {
 	fileserverHits atomic.Int32
-}
-
-func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cfg.fileserverHits.Add(1)
-		next.ServeHTTP(w, r)
-	})
+	DB             *database.Queries
+	PLATFORM       string
 }
 
 func main() {
+	godotenv.Load()
+	platform := os.Getenv("PLATFORM")
+	dbURL := os.Getenv("DB_URL")
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("error opening db connection")
+	}
+	dbQueries := database.New(db)
+
 	mux := http.NewServeMux()
 
 	svrStruct := &http.Server{
@@ -26,39 +37,29 @@ func main() {
 		Handler: mux,
 	}
 
-	var apiCfg apiConfig
+	apiCfg := apiConfig{
+		DB:       dbQueries,
+		PLATFORM: platform,
+	}
 
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
 	mux.HandleFunc("GET /api/healthz", healthzHandler)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.metricHandler)
 	mux.HandleFunc("POST /admin/reset", apiCfg.resetHandler)
 	mux.HandleFunc("POST /api/validate_chirp", validateHandler)
+	mux.HandleFunc("POST /api/users", apiCfg.createUserHandler)
+	mux.HandleFunc("POST /api/chirps", apiCfg.createChirpHandler)
 
-	err := svrStruct.ListenAndServe()
+	err = svrStruct.ListenAndServe()
 	if err != nil {
 		fmt.Printf("error occured: %v", err)
 	}
-
 }
 
 func healthzHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-
 	w.WriteHeader(http.StatusOK)
-
 	w.Write([]byte("OK"))
-}
-
-func (cfg *apiConfig) metricHandler(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	counter := cfg.fileserverHits.Load()
-	html := fmt.Sprintf("<html><body><h1>Welcome, Chirpy Admin</h1><p>Chirpy has been visited %d times!</p></body></html>", counter)
-	w.Write([]byte(html))
-}
-
-func (cfg *apiConfig) resetHandler(w http.ResponseWriter, _ *http.Request) {
-	cfg.fileserverHits.Store(0)
-	fmt.Fprintf(w, "Counter reset to 0")
 }
 
 func validateHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,10 +68,71 @@ func validateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	body := validateRequest{}
-	err := decoder.Decode(&body)
+	chirp := validateRequest{}
+	err := decoder.Decode(&chirp)
 	if err != nil {
-		fmt.Fprintf(w, "err decoding json: %v", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(500)
+
+		type errorResponse struct {
+			Error string `json:"error"`
+		}
+
+		res := errorResponse{
+			Error: "Something went wrong decoding.",
+		}
+
+		jsonBody, err := json.Marshal(res)
+		if err != nil {
+			log.Printf("error encoding error reply: %v", err)
+			return
+		}
+
+		w.Write(jsonBody)
+		return
+	}
+
+	if len(chirp.Body) < 140 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+
+		type validResponse struct {
+			Body string `json:"cleaned_body"`
+		}
+
+		res := validResponse{
+			Body: cleanChirp(chirp.Body),
+		}
+
+		jsonBody, err := json.Marshal(res)
+		if err != nil {
+			log.Printf("error encoding error reply: %v", err)
+			return
+		}
+
+		w.Write(jsonBody)
+		return
+
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(400)
+
+		type errorResponse struct {
+			Error string `json:"error"`
+		}
+
+		res := errorResponse{
+			Error: "Chirp is too long",
+		}
+
+		jsonBody, err := json.Marshal(res)
+		if err != nil {
+			log.Printf("error encoding error reply: %v", err)
+			return
+		}
+
+		w.Write(jsonBody)
+		return
 	}
 
 }
