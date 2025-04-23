@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -35,56 +34,15 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) 
 	userEmail := createUserRequest{}
 	err := decoder.Decode(&userEmail)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-
-		type errorResponse struct {
-			Error string `json:"error"`
-		}
-
-		res := errorResponse{
-			Error: "Something went wrong decoding.",
-		}
-
-		jsonBody, err := json.Marshal(res)
-		if err != nil {
-			log.Printf("error encoding error reply: %v", err)
-			return
-		}
-
-		w.Write(jsonBody)
+		respondError(w, http.StatusInternalServerError, "Failed to decode user info", err)
 		return
 	}
 
 	databaseUser, err := cfg.DB.CreateUser(r.Context(), userEmail.Email)
 	if err != nil {
-		w.WriteHeader(500)
-	}
-	user := mapDatabaseUserToUser(databaseUser)
-
-	jsonBody, err := json.Marshal(user)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-
-		type errorResponse struct {
-			Error string `json:"error"`
-		}
-
-		res := errorResponse{
-			Error: "Something went wrong decoding.",
-		}
-
-		jsonBody, err := json.Marshal(res)
-		if err != nil {
-			log.Printf("error encoding error reply: %v", err)
-			return
-		}
-
-		w.Write(jsonBody)
+		respondError(w, http.StatusInternalServerError, "Failed to create user", err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-	w.Write(jsonBody)
+	user := mapDatabaseUserToUser(databaseUser)
+	respondJSON(w, http.StatusCreated, user)
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -46,9 +45,10 @@ func main() {
 	mux.HandleFunc("GET /api/healthz", healthzHandler)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.metricHandler)
 	mux.HandleFunc("POST /admin/reset", apiCfg.resetHandler)
-	mux.HandleFunc("POST /api/validate_chirp", validateHandler)
 	mux.HandleFunc("POST /api/users", apiCfg.createUserHandler)
 	mux.HandleFunc("POST /api/chirps", apiCfg.createChirpHandler)
+	mux.HandleFunc("GET /api/chirps", apiCfg.getChirpsHandler)
+	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.getChirpByIDHandler)
 
 	err = svrStruct.ListenAndServe()
 	if err != nil {
@@ -60,79 +60,4 @@ func healthzHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
-}
-
-func validateHandler(w http.ResponseWriter, r *http.Request) {
-	type validateRequest struct {
-		Body string `json:"body"`
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	chirp := validateRequest{}
-	err := decoder.Decode(&chirp)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(500)
-
-		type errorResponse struct {
-			Error string `json:"error"`
-		}
-
-		res := errorResponse{
-			Error: "Something went wrong decoding.",
-		}
-
-		jsonBody, err := json.Marshal(res)
-		if err != nil {
-			log.Printf("error encoding error reply: %v", err)
-			return
-		}
-
-		w.Write(jsonBody)
-		return
-	}
-
-	if len(chirp.Body) < 140 {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-
-		type validResponse struct {
-			Body string `json:"cleaned_body"`
-		}
-
-		res := validResponse{
-			Body: cleanChirp(chirp.Body),
-		}
-
-		jsonBody, err := json.Marshal(res)
-		if err != nil {
-			log.Printf("error encoding error reply: %v", err)
-			return
-		}
-
-		w.Write(jsonBody)
-		return
-
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(400)
-
-		type errorResponse struct {
-			Error string `json:"error"`
-		}
-
-		res := errorResponse{
-			Error: "Chirp is too long",
-		}
-
-		jsonBody, err := json.Marshal(res)
-		if err != nil {
-			log.Printf("error encoding error reply: %v", err)
-			return
-		}
-
-		w.Write(jsonBody)
-		return
-	}
-
 }
