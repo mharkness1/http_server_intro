@@ -17,24 +17,19 @@ type UserLogin struct {
 	Email           string    `json:"email"`
 	Hashed_Password string    `json:"hashed_password"`
 	Token           string    `json:"token"`
+	RefreshToken    string    `json:"refresh_token"`
 }
 
 func (cfg *apiConfig) loginHandler(w http.ResponseWriter, r *http.Request) {
 	type loginRequest struct {
-		Email              string `json:"email"`
-		Password           string `json:"password"`
-		Expires_in_seconds int    `json:"expires_in_seconds"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	login := loginRequest{}
 	err := decoder.Decode(&login)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to decode login info", err)
-	}
-
-	expires := login.Expires_in_seconds
-	if expires == 0 || expires > 3600 {
-		expires = 3600
 	}
 
 	user, err := cfg.DB.Login(r.Context(), login.Email)
@@ -47,20 +42,33 @@ func (cfg *apiConfig) loginHandler(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusUnauthorized, "Incorrect email or password", err)
 	}
 
-	jwt, err := auth.MakeJWT(user.ID, cfg.SECRET, (time.Duration(expires) * time.Second))
+	jwt, err := auth.MakeJWT(user.ID, cfg.SECRET, time.Hour)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to generate JWT", err)
 	}
 
-	respondJSON(w, http.StatusOK, mapToLoginResponse(user, jwt))
+	refreshToken, err := auth.MakeRefreshToken()
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Error generating refresh token", err)
+	}
+	_, err = cfg.DB.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		Token:  refreshToken,
+		UserID: user.ID,
+	})
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to store refresh token", err)
+	}
+
+	respondJSON(w, http.StatusOK, mapToLoginResponse(user, jwt, refreshToken))
 }
 
-func mapToLoginResponse(dbUser database.User, token string) UserLogin {
+func mapToLoginResponse(dbUser database.User, jwt string, refreshToken string) UserLogin {
 	return UserLogin{
-		ID:        dbUser.ID,
-		CreatedAt: dbUser.CreatedAt,
-		UpdatedAt: dbUser.UpdatedAt,
-		Email:     dbUser.Email,
-		Token:     token,
+		ID:           dbUser.ID,
+		CreatedAt:    dbUser.CreatedAt,
+		UpdatedAt:    dbUser.UpdatedAt,
+		Email:        dbUser.Email,
+		Token:        jwt,
+		RefreshToken: refreshToken,
 	}
 }

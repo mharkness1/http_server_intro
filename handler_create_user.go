@@ -59,3 +59,45 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, r *http.Request) 
 	respondJSON(w, http.StatusCreated, user)
 	return
 }
+
+func (cfg *apiConfig) updateUserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	type updateUserInfoRequest struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, "token extraction failed", err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(token, cfg.SECRET)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, "token failed validation", err)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	userRequest := updateUserInfoRequest{}
+	err = decoder.Decode(&userRequest)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to decode user info", err)
+		return
+	}
+
+	hashedPassword, err := auth.HashPassword(userRequest.Password)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed hashing password", err)
+		return
+	}
+
+	updatedUser, err := cfg.DB.UpdateUserInfo(r.Context(), database.UpdateUserInfoParams{
+		ID:             userID,
+		Email:          userRequest.Email,
+		HashedPassword: hashedPassword,
+	})
+
+	respondJSON(w, http.StatusOK, mapDatabaseUserToUserResponse(updatedUser))
+	return
+}
