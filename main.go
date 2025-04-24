@@ -17,12 +17,15 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	DB             *database.Queries
 	PLATFORM       string
+	SECRET         string
 }
 
 func main() {
 	godotenv.Load()
 	platform := os.Getenv("PLATFORM")
 	dbURL := os.Getenv("DB_URL")
+	secret := os.Getenv("SECRET")
+
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("error opening db connection")
@@ -39,6 +42,7 @@ func main() {
 	apiCfg := apiConfig{
 		DB:       dbQueries,
 		PLATFORM: platform,
+		SECRET:   secret,
 	}
 
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
@@ -49,6 +53,7 @@ func main() {
 	mux.HandleFunc("POST /api/chirps", apiCfg.createChirpHandler)
 	mux.HandleFunc("GET /api/chirps", apiCfg.getChirpsHandler)
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.getChirpByIDHandler)
+	mux.HandleFunc("POST /api/login", apiCfg.loginHandler)
 
 	err = svrStruct.ListenAndServe()
 	if err != nil {

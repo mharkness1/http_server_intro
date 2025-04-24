@@ -14,11 +14,12 @@ func (cfg *apiConfig) getChirpsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var allChirps []Chirp
-	for i, _ := range chirps {
+	for i := range chirps {
 		allChirps = append(allChirps, mapDatabaseChirpToChirp(chirps[i]))
 	}
 
 	respondJSON(w, http.StatusOK, allChirps)
+	return
 }
 
 func (cfg *apiConfig) getChirpByIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +32,8 @@ func (cfg *apiConfig) getChirpByIDHandler(w http.ResponseWriter, r *http.Request
 	chirp, err := cfg.DB.GetChirpByID(r.Context(), chirpUuid)
 	if err != nil {
 		respondError(w, http.StatusNotFound, "No matching chirp", err)
+		return
 	}
 	respondJSON(w, http.StatusOK, mapDatabaseChirpToChirp(chirp))
+	return
 }

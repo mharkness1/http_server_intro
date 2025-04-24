@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mharkness1/http_server_intro/internal/auth"
 	"github.com/mharkness1/http_server_intro/internal/database"
 )
 
@@ -20,15 +21,26 @@ type Chirp struct {
 
 func (cfg *apiConfig) createChirpHandler(w http.ResponseWriter, r *http.Request) {
 	type createChirpRequest struct {
-		Body    string `json:"body"`
-		User_id string `json:"user_id"`
+		Body string `json:"body"`
+	}
+
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, "token extraction failed", err)
+		return
+	}
+	userFromToken, err := auth.ValidateJWT(token, cfg.SECRET)
+	if err != nil {
+		respondError(w, http.StatusUnauthorized, "token failed validation", err)
+		return
 	}
 
 	decoder := json.NewDecoder(r.Body)
 	chirp := createChirpRequest{}
-	err := decoder.Decode(&chirp)
+	err = decoder.Decode(&chirp)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to decode chirp submission", err)
+		return
 	}
 
 	const maxChirpLength = 140
@@ -38,20 +50,20 @@ func (cfg *apiConfig) createChirpHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	cleanedChirp := cleanChirp(chirp.Body)
-	userID, err := uuid.Parse(chirp.User_id)
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid user_id format", err)
-		return
-	}
 
 	dbChirp, err := cfg.DB.CreateChirp(r.Context(), database.CreateChirpParams{
 		Body: cleanedChirp,
 		UserID: uuid.NullUUID{
-			UUID:  userID,
+			UUID:  userFromToken,
 			Valid: true,
 		},
 	})
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to create chirp", err)
+		return
+	}
 	respondJSON(w, http.StatusCreated, mapDatabaseChirpToChirp(dbChirp))
+	return
 }
 
 func cleanChirp(msg string) string {
