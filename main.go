@@ -18,6 +18,7 @@ type apiConfig struct {
 	DB             *database.Queries
 	PLATFORM       string
 	SECRET         string
+	POLKA_KEY      string
 }
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	platform := os.Getenv("PLATFORM")
 	dbURL := os.Getenv("DB_URL")
 	secret := os.Getenv("SECRET")
+	polka_key := os.Getenv("POLKA_KEY")
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -40,9 +42,10 @@ func main() {
 	}
 
 	apiCfg := apiConfig{
-		DB:       dbQueries,
-		PLATFORM: platform,
-		SECRET:   secret,
+		DB:        dbQueries,
+		PLATFORM:  platform,
+		SECRET:    secret,
+		POLKA_KEY: polka_key,
 	}
 
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
@@ -58,7 +61,7 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", apiCfg.revokeRefreshTokenHandler)
 	mux.HandleFunc("PUT /api/users", apiCfg.updateUserInfoHandler)
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.deleteChirpHandler)
-	mux.HandleFunc("POST /api/polka/webhook", apiCfg.upgradeUserHandler)
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.upgradeUserHandler)
 
 	err = svrStruct.ListenAndServe()
 	if err != nil {

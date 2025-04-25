@@ -9,7 +9,7 @@ VALUES (
 )
 RETURNING *;
 
--- name: GetChripsByCreatedAsc :many
+-- name: GetChirpsByCreatedAsc :many
 SELECT * FROM chirps ORDER BY created_at ASC;
 
 -- name: GetChirpByID :one
@@ -17,3 +17,6 @@ SELECT * FROM chirps WHERE id = $1;
 
 -- name: DeleteChirpByID :exec
 DELETE FROM chirps WHERE id = $1;
+
+-- name: GetChirpsByAuthorByCreatedASC :many
+SELECT * FROM Chirps WHERE user_id = $1 ORDER BY created_at ASC;

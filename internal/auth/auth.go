@@ -100,3 +100,19 @@ func MakeRefreshToken() (string, error) {
 	}
 	return hex.EncodeToString(randomBytes), nil
 }
+
+func GetAPIKey(headers http.Header) (string, error) {
+	authorizationRequest := headers.Get("Authorization")
+	if authorizationRequest == "" {
+		return "", fmt.Errorf("No authorization header provided")
+	}
+
+	if strings.HasPrefix(authorizationRequest, "ApiKey ") {
+		userToken := strings.Trim(authorizationRequest[len("ApiKey "):], " ")
+		if len(userToken) == 0 {
+			return "", fmt.Errorf("No api key found")
+		}
+		return userToken, nil
+	}
+	return "", fmt.Errorf("api key incorrectly formatted")
+}
