@@ -57,6 +57,8 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", apiCfg.refreshTokenHandler)
 	mux.HandleFunc("POST /api/revoke", apiCfg.revokeRefreshTokenHandler)
 	mux.HandleFunc("PUT /api/users", apiCfg.updateUserInfoHandler)
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.deleteChirpHandler)
+	mux.HandleFunc("POST /api/polka/webhook", apiCfg.upgradeUserHandler)
 
 	err = svrStruct.ListenAndServe()
 	if err != nil {

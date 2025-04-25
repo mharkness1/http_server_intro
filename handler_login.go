@@ -18,6 +18,7 @@ type UserLogin struct {
 	Hashed_Password string    `json:"hashed_password"`
 	Token           string    `json:"token"`
 	RefreshToken    string    `json:"refresh_token"`
+	IsChirpyRed     bool      `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,5 +71,6 @@ func mapToLoginResponse(dbUser database.User, jwt string, refreshToken string) U
 		Email:        dbUser.Email,
 		Token:        jwt,
 		RefreshToken: refreshToken,
+		IsChirpyRed:  dbUser.IsChirpyRed,
 	}
 }

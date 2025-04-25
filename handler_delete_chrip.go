@@ -30,7 +30,7 @@ func (cfg *apiConfig) deleteChirpHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if chirp.UserID.UUID != userID {
-		respondError(w, http.StatusForbidden, "Chirp creator and User ID don't match", err)
+		respondError(w, http.StatusForbidden, "Chirp creator and User ID don't match", nil)
 		return
 	}
 	err = cfg.DB.DeleteChirpByID(r.Context(), chirpUuid)

@@ -24,11 +24,11 @@ func (cfg *apiConfig) refreshTokenHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	if currentTime.After(databaseRefreshToken.ExpiresAt) {
-		respondError(w, http.StatusUnauthorized, "Refresh token has expired", err)
+		respondError(w, http.StatusUnauthorized, "Refresh token has expired", nil)
 		return
 	}
 	if databaseRefreshToken.RevokedAt.Valid {
-		respondError(w, http.StatusUnauthorized, "Refresh token has been revoked", err)
+		respondError(w, http.StatusUnauthorized, "Refresh token has been revoked", nil)
 		return
 	}
 

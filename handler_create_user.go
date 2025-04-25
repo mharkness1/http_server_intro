@@ -16,14 +16,16 @@ type User struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 	Email           string    `json:"email"`
 	Hashed_Password string    `json:"hashed_password"`
+	IsChirpyRed     bool      `json:"is_chirpy_red"`
 }
 
 func mapDatabaseUserToUserResponse(dbUser database.User) User {
 	return User{
-		ID:        dbUser.ID,
-		CreatedAt: dbUser.CreatedAt,
-		UpdatedAt: dbUser.UpdatedAt,
-		Email:     dbUser.Email,
+		ID:          dbUser.ID,
+		CreatedAt:   dbUser.CreatedAt,
+		UpdatedAt:   dbUser.UpdatedAt,
+		Email:       dbUser.Email,
+		IsChirpyRed: dbUser.IsChirpyRed,
 	}
 }
 
