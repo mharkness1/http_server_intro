@@ -11,6 +11,10 @@ The project is a simplified mock of a 'twitter'-eque platform called 'Chirpy' wh
 
 ``` git clone <repo> <directory> ```
 
+2. Get dependencies
+
+``` go mod download ```
+
 ## Available Resources
 
 ## Data Formats
