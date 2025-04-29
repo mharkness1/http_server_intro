@@ -6,7 +6,7 @@ This project was written alongside the course "Learn HTTP Servers in Go" by boot
 
 The project is a simplified mock of a 'twitter'-eque platform called 'Chirpy' where users are registered and they can post 'chirps'. Currently implemented: user account creation, chirp creation, login with hashed passwords, authentication on posting with JWT and refresh tokens, and authorization (with a fictional premium project 'chirpy red').
 
-Additional tools used: SQLC (ADD LINK) for autogeneration of typed interfaces and dababase methods; Goose (ADD LINK) as a database migration tool.
+Additional tools used: [SQLC](https://sqlc.dev/) for autogeneration of typed interfaces and dababase methods; [Goose](https://github.com/pressly/goose) as a database migration tool.
 
 ## Local Set-up
 1. Copy repo
