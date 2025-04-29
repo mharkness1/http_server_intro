@@ -11,15 +11,40 @@ Additional tools used: [SQLC](https://sqlc.dev/) for autogeneration of typed int
 ## Local Set-up
 1. Copy repo
 
-``` git clone <repo> <directory> ```
+` git clone <repo> <directory> `
 
 2. Get dependencies
 
-``` go mod download ```
+You can download the listed dependencies using:
 
-3. Environment variables
+` go mod download `
 
-4. Database Tools
+However, this won't install all necessary dependencies for this project. In particular, the database management tool 'goose' is needed which can be installed with:
+
+`go install github.com/pressly/goose/v3/cmd/goose@latest`
+
+3. Local Database Set-up
+
+This project was developed for use with postgres (version 15). Once installed locally create a database called 'chirpy'.
+
+You can check if you have psql (the defauly cli for postgres) by typing `psql --version` in your terminal. Once installed start a postgres server in the background, enter the psql shell and create a new database using: `CREATE DATABASE chirpy;`
+
+You can check that it has correctly started by entering the database and querying: `SELECT version();`
+
+4. Environment variables
+
+Create a file named: '.env' add to it the following environment variables that are imported and used through the code:
+
+```
+DB_URL = postgres://<username>:@localhost:<port>/chirpy?sslmode=disable
+PLATFORM = "dev"
+SECRET = <Any random string>
+POLKA_KEY = "f271c81ff7084ee5b99a5091b42d486e"
+```
+
+A random string can easily be generated in terminal using the following command:
+`openssl rand -base64 <n>`
+where `<n>` is the length of the random string desired e.g, `openssl rand -base64 64`
 
 5. Running
 
