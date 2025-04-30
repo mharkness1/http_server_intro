@@ -46,9 +46,18 @@ A random string can easily be generated in terminal using the following command:
 `openssl rand -base64 <n>`
 where `<n>` is the length of the random string desired e.g, `openssl rand -base64 64`
 
+The Polka Key is the api key of a fictional third party service, to test the authorization is correctly implemented this can be set to any key as long as the authorization header in the corresponding request matches.
+
+PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.dev's testing suite to have a clean database for each submission.
+
 5. Running
 
 ## Available Resources
+
+| Syntax      | Description |
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
 
 PLACE HOLDERS
 mux.HandleFunc("GET /api/healthz", healthzHandler)
