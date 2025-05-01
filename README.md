@@ -54,24 +54,48 @@ PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.de
 
 ## Available Resources
 
-| Syntax      | Description |
-| ----------- | ----------- |
-| Header      | Title       |
-| Paragraph   | Text        |
+| Endpoint | Method | Description |
+| ----------- | ----------- | ----------- |
+| /api/chirps | GET | |
+| /api/chirps | POST | |
+| /api/chirps/{chirpID} | GET ||
+| /api/chirps/{chirpID} | DELETE ||
+| /api/healthz | GET ||
+| /api/login | POST ||
+| /api/metrics | GET ||
+| /api/polka/webhooks | POST ||
+| /api/refresh | POST ||
+| /api/reset | POST ||
+| /api/revoke | POST ||
+| /api/users | POST ||
+| /api/users | PUT ||
 
 PLACE HOLDERS
-mux.HandleFunc("GET /api/healthz", healthzHandler)
-mux.HandleFunc("GET /admin/metrics", apiCfg.metricHandler)
-mux.HandleFunc("POST /admin/reset", apiCfg.resetHandler)
-mux.HandleFunc("POST /api/users", apiCfg.createUserHandler)
-mux.HandleFunc("POST /api/chirps", apiCfg.createChirpHandler)
-mux.HandleFunc("GET /api/chirps", apiCfg.getChirpsHandler)
-mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.getChirpByIDHandler)
-mux.HandleFunc("POST /api/login", apiCfg.loginHandler)
-mux.HandleFunc("POST /api/refresh", apiCfg.refreshTokenHandler)
-mux.HandleFunc("POST /api/revoke", apiCfg.revokeRefreshTokenHandler)
-mux.HandleFunc("PUT /api/users", apiCfg.updateUserInfoHandler)
-mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.deleteChirpHandler)
-mux.HandleFunc("POST /api/polka/webhooks", apiCfg.upgradeUserHandler)
 
-## Data Formats
+chirps
+health
+login
+metrics
+polka
+refresh
+reset
+revoke
+users
+
+GET /api/healthz", healthzHandler
+GET /admin/metrics", apiCfg.metricHandler
+POST /admin/reset", apiCfg.resetHandler
+POST /api/users", apiCfg.createUserHandler
+POST /api/chirps", apiCfg.createChirpHandler
+GET /api/chirps", apiCfg.getChirpsHandler
+GET /api/chirps/{chirpID}", apiCfg.getChirpByIDHandler
+POST /api/login", apiCfg.loginHandler
+POST /api/refresh", apiCfg.refreshTokenHandler
+POST /api/revoke", apiCfg.revokeRefreshTokenHandler
+PUT /api/users", apiCfg.updateUserInfoHandler
+DELETE /api/chirps/{chirpID}", apiCfg.deleteChirpHandler
+POST /api/polka/webhooks", apiCfg.upgradeUserHandler
+
+### Available Queries
+
+## Resource Formats
