@@ -8,6 +8,8 @@ The project is a simplified mock of a 'twitter'-eque platform called 'Chirpy' wh
 
 Additional tools used: [SQLC](https://sqlc.dev/) for autogeneration of typed interfaces and dababase methods; [Goose](https://github.com/pressly/goose) as a database migration tool.
 
+The main purpose of this project was to build a web server with additional database functionality, it does include a 'front-end' which is a static page found at localhost:8080 as well as a webpage found at the endpoint /api/metrics which returns the number of times the page has been visited.
+
 ## Local Set-up
 1. Copy repo
 
@@ -53,14 +55,14 @@ PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.de
 5. Running
 
 ## Available Resources
-
+### Summary
 | Endpoint | Method | Description |
 | ----------- | ----------- | ----------- |
 | /api/chirps | GET | |
 | /api/chirps | POST | |
 | /api/chirps/{chirpID} | GET ||
 | /api/chirps/{chirpID} | DELETE ||
-| /api/healthz | GET ||
+| /api/healthz | GET | Returns Status Code 200 and 'OK' if the server is running |
 | /api/login | POST ||
 | /api/metrics | GET ||
 | /api/polka/webhooks | POST ||
@@ -72,17 +74,6 @@ PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.de
 
 PLACE HOLDERS
 
-chirps
-health
-login
-metrics
-polka
-refresh
-reset
-revoke
-users
-
-GET /api/healthz", healthzHandler
 GET /admin/metrics", apiCfg.metricHandler
 POST /admin/reset", apiCfg.resetHandler
 POST /api/users", apiCfg.createUserHandler
@@ -96,6 +87,5 @@ PUT /api/users", apiCfg.updateUserInfoHandler
 DELETE /api/chirps/{chirpID}", apiCfg.deleteChirpHandler
 POST /api/polka/webhooks", apiCfg.upgradeUserHandler
 
-### Available Queries
-
-## Resource Formats
+### Detailed Descriptions
+#### 1. /api/chirps
