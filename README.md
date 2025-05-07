@@ -131,8 +131,23 @@ This endpoint is used to create a new 'chirp'.
 
 #### 2. /api/chirps/{chirpID} - GET & DELETE
 ##### GET
+This endpoint simply returns the chirp with the ID matching the provided path.
+
+- Response Structure
+
+```
+  {
+    "id": <chirp id>,
+    "body": "<chirp content>",
+    "author_id": <user id of the chirp poster>,
+    "created_at": "<created time of chirp>",
+    "updated_at": "<updated time of chirp>"
+  }
+```
 
 ##### DELETE
+
+Assuming the necessary authentication it deletes the chirp with the ID provided and returns a status code.
 
 #### 3. /api/healthz - GET
 
@@ -140,12 +155,67 @@ Returns a simple status code.
 
 #### 4. /api/login - POST
 
+Send email and password to which the server responds with the necessary authorizations/tokens as well as user details from the system.
+
+- Request Structure
+
+```
+{
+    "email":"user email",
+    "password":"user password"
+}
+```
+
+- Response Structure
+
+```
+{
+    "id":"<user id>",
+    "created_at":"<date the user was created>",
+    "updated_at":"<date the user details were last updated>",
+    "email":"<user email>",
+    "token":"<authorization token>",
+    "refresh_token":"<refresh token>",
+    "is_chirpy_red":"<true/false reflecting premium status>"
+}
+```
+
 #### 5. /api/metrics - GET
+
+Returns a webpage with the total number of page visits.
 
 #### 6. /api/polka/webhooks - POST
 
+Dummy implementation of a premium service managed by a third party 'polka'. If the provided event is anything other than 'user.upgraded' this will return an error. The .env polka key must also match the provided token in the authorization header of the request.
+
+- Request Structure
+
+```
+{
+    "event":"user.upgraded",
+    "data": {
+        "user_id":"<user id to be upgraded>",
+    }
+}
+```
+
 #### 7. /api/refresh - POST
+
+If a refresh token exists and is valid this endpoint will return a fresh token.
+
+- Response Structure
+
+```
+{
+    "token":"<new refresh token>"
+}
+```
 
 #### 8. /api/revoke - POST
 
+This end point revokes the refresh token in the header of the request and returns a status code.
+
 #### 9. /api/users - POST & PUT
+##### POST
+
+##### PUT
