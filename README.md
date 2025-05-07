@@ -72,5 +72,80 @@ PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.de
 | /api/users | POST | Creates a user and adds it to the database |
 | /api/users | PUT | Authenticates request and updates user information in the database|
 
-### Detailed Descriptions
+### Detailed Descriptions by Endpoint
+
+All requests must contain the relevant authorizations – in particular the relevant JWT (which contains necessary user ID data amongst other properties).
+
 #### 1. /api/chirps - GET & POST
+##### GET
+This endpoint returns chirps from the database. By default it returns them all ordered by the date created in ascending order (oldest first).
+
+- Queries
+This endpoint accepts two URL query parameters:
+1. `?author_id=<author id>` where the author ID is the UUID of a specific user that created the chirp.
+2. `?sort=<order>` if 'order' is 'desc' then it will return either all or the author's chirps in descending order (newest first). Anything other than 'desc' will return chirps in default order.
+
+- Response Structure
+
+```
+[
+  {
+    "id": 1,
+    "body": "<chirp 1>",
+    "author_id": <user id of the chirp poster>,
+    "created_at": "<created time of chirp 1>",
+    "updated_at": "<updated time of chirp 1>"
+  },
+  {
+    "id": 2,
+    "body": "<chirp 2>",
+    "author_id": <user id of the chirp poster>,
+    "created_at": "<created time of chirp 2>",
+    "updated_at": "<updated time of chirp 2>"
+  }
+]
+```
+
+##### Post
+This endpoint is used to create a new 'chirp'.
+
+- Request Structure
+
+```
+{
+    "body":"<chirp content>"
+}
+```
+
+- Response Structure
+
+```
+  {
+    "id": <chirp id>,
+    "body": "<chirp content>",
+    "author_id": <user id of the chirp poster>,
+    "created_at": "<created time of chirp>",
+    "updated_at": "<updated time of chirp>"
+  }
+```
+
+#### 2. /api/chirps/{chirpID} - GET & DELETE
+##### GET
+
+##### DELETE
+
+#### 3. /api/healthz - GET
+
+Returns a simple status code.
+
+#### 4. /api/login - POST
+
+#### 5. /api/metrics - GET
+
+#### 6. /api/polka/webhooks - POST
+
+#### 7. /api/refresh - POST
+
+#### 8. /api/revoke - POST
+
+#### 9. /api/users - POST & PUT
