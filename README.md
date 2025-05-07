@@ -106,7 +106,7 @@ This endpoint accepts two URL query parameters:
 ]
 ```
 
-##### Post
+##### POST
 This endpoint is used to create a new 'chirp'.
 
 - Request Structure
