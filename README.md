@@ -217,5 +217,53 @@ This end point revokes the refresh token in the header of the request and return
 
 #### 9. /api/users - POST & PUT
 ##### POST
+This creates a user and adds them to the database. It simply takes the email and password, and responds with the user details as registered in the database.
+
+- Request Structure
+
+```
+{
+    "email":"user email",
+    "password":"user password"
+}
+```
+
+- Response Structure
+
+```
+{
+    "id":"<user id>",
+    "created_at":"<date the user was created>",
+    "updated_at":"<date the user details were last updated>",
+    "email":"<user email>",
+    "token":"<authorization token>",
+    "refresh_token":"<refresh token>",
+    "is_chirpy_red":"<true/false reflecting premium status>"
+}
+```
 
 ##### PUT
+This end point updates user info: email and password, after validating using the user id stored in the authorization header of the request to match to the relevant user.
+
+- Request Structure
+
+```
+{
+    "email":"new user email",
+    "password":"new user password"
+}
+```
+
+- Response Structure
+
+```
+{
+    "id":"<user id>",
+    "created_at":"<date the user was created>",
+    "updated_at":"<date the user details were last updated>",
+    "email":"<new user email>",
+    "token":"<authorization token>",
+    "refresh_token":"<refresh token>",
+    "is_chirpy_red":"<true/false reflecting premium status>"
+}
+```
