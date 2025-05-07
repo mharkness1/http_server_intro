@@ -58,34 +58,19 @@ PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.de
 ### Summary
 | Endpoint | Method | Description |
 | ----------- | ----------- | ----------- |
-| /api/chirps | GET | |
-| /api/chirps | POST | |
-| /api/chirps/{chirpID} | GET ||
-| /api/chirps/{chirpID} | DELETE ||
+| /api/chirps | GET | Returns all chirps with query support |
+| /api/chirps | POST | Creates, cleans, and validates a chirp and adds it to the database |
+| /api/chirps/{chirpID} | GET | Returns a chirp matching the UUID provided |
+| /api/chirps/{chirpID} | DELETE | Deletes chirp matching the UUID where the user is the original creator |
 | /api/healthz | GET | Returns Status Code 200 and 'OK' if the server is running |
-| /api/login | POST ||
-| /api/metrics | GET ||
-| /api/polka/webhooks | POST ||
-| /api/refresh | POST ||
-| /api/reset | POST ||
-| /api/revoke | POST ||
-| /api/users | POST ||
-| /api/users | PUT ||
-
-PLACE HOLDERS
-
-GET /admin/metrics", apiCfg.metricHandler
-POST /admin/reset", apiCfg.resetHandler
-POST /api/users", apiCfg.createUserHandler
-POST /api/chirps", apiCfg.createChirpHandler
-GET /api/chirps", apiCfg.getChirpsHandler
-GET /api/chirps/{chirpID}", apiCfg.getChirpByIDHandler
-POST /api/login", apiCfg.loginHandler
-POST /api/refresh", apiCfg.refreshTokenHandler
-POST /api/revoke", apiCfg.revokeRefreshTokenHandler
-PUT /api/users", apiCfg.updateUserInfoHandler
-DELETE /api/chirps/{chirpID}", apiCfg.deleteChirpHandler
-POST /api/polka/webhooks", apiCfg.upgradeUserHandler
+| /api/login | POST | Checks, authenticates and returns a refresh token when a user logs in |
+| /api/metrics | GET | Returns HTML with dynamic # of visits counter |
+| /api/polka/webhooks | POST | Third party user upgrade mock-up |
+| /api/refresh | POST | Returns a refresh token with new expiry |
+| /api/reset | POST | If PLATFORM = "dev" resets # of visits counter and deletes all users |
+| /api/revoke | POST | Revokes an existing refresh token, without authentication currently |
+| /api/users | POST | Creates a user and adds it to the database |
+| /api/users | PUT | Authenticates request and updates user information in the database|
 
 ### Detailed Descriptions
-#### 1. /api/chirps
+#### 1. /api/chirps - GET & POST
