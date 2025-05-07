@@ -53,6 +53,12 @@ The Polka Key is the api key of a fictional third party service, to test the aut
 PLATFORM allows for access to the /api/reset endpoint, which allowed for boot.dev's testing suite to have a clean database for each submission.
 
 5. Running
+- Ensure postgres is running locally on the machine and the local set-up has been completed.
+- Using goose bring the database up to latest version using:
+``goose postgres postgres://<username>:@localhost:<database port>/chirpy up``
+- Build and run the project:
+``go build -o out && ./out``
+- Test it out with API to the endpoints specified below.
 
 ## Available Resources
 ### Summary
